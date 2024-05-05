@@ -4,7 +4,7 @@ The "django-survey" project is an application for Django that makes it easy to c
 ## Instalation
 
 ```sh
-pip install django-survey
+pip install django-surveyplus
 ```
 
 ## Use

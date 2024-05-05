@@ -35,7 +35,7 @@ class SurveyDetailView(DetailView):
             'description': survey.description,
             'start_date': survey.start_date,
             'end_date': survey.end_date,
-            'options': serialize('dict', survey.options.filter(is_active=True)),
+            'options': serialize('json', survey.options.filter(is_active=True)),
         }
         if self.request.user.is_authenticated:
             user_choices = self.request.user.survey_choices.all()
