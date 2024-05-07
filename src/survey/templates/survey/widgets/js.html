@@ -1,0 +1,35 @@
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const ctx = document.getElementById('chart1').getContext('2d');
+  const survey = {{ survey_json|safe }};
+  const labels = survey.options.map((e) => e.title);
+  const colors = survey.options.map((e) => e.color);
+  const data = survey.options.map((e) => e.vote_count);
+
+  const chart1 = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: survey.title,
+        data: data,
+        backgroundColor: colors,
+        borderColor: colors,
+        borderWidth: 1
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      elements: {
+        bar: {
+          borderWidth: 2,
+        }
+      },
+      responsive: true,
+      plugins: {
+        legend: null,
+
+      }
+    }
+});
+</script>

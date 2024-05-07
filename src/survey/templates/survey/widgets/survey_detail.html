@@ -1,0 +1,63 @@
+{% load i18n %}
+
+<div class="container">
+  <h1>{{ survey }}</h1>
+  <p>{{ survey.description }}</p>
+  {% if not user_choice %}
+  <h2 class="mb-3">{{ _('Choose an option') }}</h2>
+  <form class="row mb-5" method="post" action="{% url 'survey:vote' %}">{% csrf_token %}
+    <input type="hidden" name="success_url" value="{{ request.path }}">
+    {% for obj in survey.options.all %}
+    {% with obj.vote_percentage|floatformat:"0" as vote_percentage %}
+    <div class="{{ survey.options_cssclass }} mb-5">
+      <button class="card btn btn-outline-secondary w-100 h-100 text-center mb-3" name="survey_option_id" value="{{ obj.pk }}">
+        {% if obj.image %}
+        <img src="{{ obj.image.url }}" alt="" class="card-img-top w-100">
+        {% endif %}
+        <div class="card-body w-100">
+          <h3 class="h5 card-title w-100">{{ obj }}</h3>
+          <p class="mb-0">{{ obj.description }}</p>
+        </div>
+        <div class="card-footer w-100">
+          <div class="fw-bold lead">{{ obj.vote_count }}</div>
+          <div class="fw-bold lead">{{ vote_percentage }}%</div>
+        </div>
+      </button>
+      <div class="progress" role="progressbar" aria-label="{{ obj }} {{ _('percentage') }}" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+        <div class="progress-bar" style="width: {{ vote_percentage }}%; background-color: {{ obj.color }}"></div>
+      </div>
+    </div>
+    {% endwith %}
+    {% endfor %}
+  </form>
+  {% else %}
+  <p class="text-muted small"><i class="bi bi-check-circle-fill me-1" style="color: {{ user_choice.option.color }}"></i>{% blocktrans with option=user_choice.option date=user_choice.create_date %}You have voted for {{ option }} on date {{ date }}{% endblocktrans %}</p>
+  <div class="row mb-5">
+    {% for obj in survey.options.all %}
+    {% with obj.vote_percentage|floatformat:"0" as vote_percentage %}
+    <div class="{{ survey.options_cssclass }} mb-5">
+      <div class="card btn btn-outline-dark w-100 h-100 mb-3 {% if obj == user_choice.option %}active{% endif %}">
+        {% if obj.image %}
+        <img src="{{ obj.image.url }}" alt="" class="card-img-top w-100">
+        {% endif %}
+        <div class="card-body">
+          <h3 class="h5 card-title w-100">{{ obj }}</h3>
+          <p class="mb-0">{{ obj.description }}</p>
+        </div>
+        <div class="card-footer">
+          <div class="fw-bold lead">{{ obj.vote_count }}</div>
+          <div class="fw-bold lead">{{ vote_percentage }}%</div>
+        </div>
+      </div>
+      <div class="progress" role="progressbar" aria-label="{{ obj }} {{ _('percentage') }}" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+        <div class="progress-bar" style="width: {{ vote_percentage }}%; background-color: {{ obj.color }}"></div>
+      </div>
+    </div>
+    {% endwith %}
+    {% endfor %}
+  </div>
+  {% endif %}
+  <div class="card card-body mb-5">
+    <canvas id="chart1" width="400" height="100"></canvas>
+  </div>
+</div>

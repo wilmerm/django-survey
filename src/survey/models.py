@@ -67,9 +67,6 @@ class Survey(BaseModel):
     def __str__(self):
         return self.title
 
-    def get_absolute_url(self):
-        return reverse("survey:survey_detail", kwargs={"pk": self.pk})
-
     def update_options(self):
         for option in self.options.all():
             option.update_vote_count()
