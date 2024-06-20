@@ -1,5 +1,8 @@
 # django-survey
-The "django-survey" project is an application for Django that makes it easy to create and manage surveys on websites. This application provides functionalities to create surveys, define questions and response options, manage active and inactive surveys, collect user responses, and generate statistical reports on survey results. With this tool, developers can easily integrate surveys into their Django websites to collect user data and feedback.
+The **django-survey** project is an application for Django that makes it easy to create and manage surveys on websites. This application provides functionalities to create surveys, define questions and response options, manage active and inactive surveys, collect user responses, and generate statistical reports on survey results. With this tool, developers can easily integrate surveys into their Django websites to collect user data and feedback.
+
+![image](https://github.com/wilmerm/django-survey/assets/44853160/abbfeede-8fd2-4cd4-bab8-d920c5974a09)
+
 
 ## Instalation
 
