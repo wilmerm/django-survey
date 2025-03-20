@@ -4,9 +4,8 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.translation import gettext as _, gettext_lazy as _l
-
-from colorfield.fields import ColorField
 
 
 User = get_user_model()
@@ -46,22 +45,31 @@ class BaseModel(models.Model):
 
 
 class Survey(BaseModel):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    title = models.CharField(
-        max_length=100,
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False,
     )
-    description = models.CharField(
+    title = models.CharField(
+        max_length=255,
+    )
+    description = models.TextField(
         max_length=500,
+        blank=True,
     )
     start_date = models.DateField(
         null=True,
+        blank=True,
+        default=timezone.now,
     )
     end_date = models.DateField(
         null=True,
+        blank=True,
     )
     options_cssclass = models.CharField(
         max_length=500,
-        default='col-sm-6 col-md-4 col-lg-3 col-xl-2',
+        blank=True,
+        default='col-sm-6 col-md-4 col-lg-3 col-xl-2 mb-3',
     )
 
     def __str__(self):
@@ -82,10 +90,11 @@ class SurveyOption(BaseModel):
         on_delete=models.CASCADE,
     )
     title = models.CharField(
-        max_length=100,
+        max_length=255,
     )
-    description = models.CharField(
+    description = models.TextField(
         max_length=500,
+        blank=True,
     )
     vote_count = models.PositiveIntegerField(
         default=0,
@@ -102,8 +111,9 @@ class SurveyOption(BaseModel):
         null=True,
         blank=True,
     )
-    color = ColorField(
-        default='#FFFFFF',
+    color = models.CharField(
+        max_length=7,
+        default='#f8f9fa',
     )
 
     def __str__(self):
@@ -132,7 +142,7 @@ class SurveyChoice(BaseModel):
     )
 
     def __str__(self):
-        return f'{self.user} | {self.option}'
+        return f"{self.user} | {self.option}"
 
     def save(self, *args, **kwargs):
         self.validate_survey_is_active()
@@ -145,8 +155,8 @@ class SurveyChoice(BaseModel):
 
     def validate_survey_is_active(self):
         if not self.option.survey.is_active:
-            raise ValidationError(_('The survey is no longer active.'))
+            raise ValidationError(_("The survey is no longer active."))
 
     def validate_unique_user_survey_choice(self):
         if self.option.survey.has_user_voted(self.user):
-            raise ValidationError(_('You have already voted.'))
+            raise ValidationError(_("You have already voted."))
