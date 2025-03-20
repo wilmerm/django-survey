@@ -10,6 +10,8 @@ The **django-survey** project is an application for Django that makes it easy to
 pip install django-surveyplus
 ```
 
+---
+
 ## Usage
 
 ### Add to installed applications
@@ -76,6 +78,8 @@ for i in range(1, 5):
 </html>
 ```
 
+---
+
 ## Developer Instructions
 
 ### Setting Up the Development Environment
@@ -123,6 +127,36 @@ To run the tests, use the following command:
 python manage.py test
 ```
 
+### Building and Publishing the Library
+
+To compile and upload the library to PyPI, follow these steps:
+
+1. Ensure you have the necessary dependencies:
+
+    ```sh
+    pip install build twine
+    ```
+
+2. Build the package:
+
+    ```sh
+    python -m build
+    ```
+
+3. (Optional) Verify the package:
+
+    ```sh
+    twine check dist/*
+    ```
+
+4. Upload the package to PyPI:
+
+    ```sh
+    python -m twine upload dist/*
+    ```
+
+---
+
 ## License
 
 This project is licensed under the MIT License. See [LICENSE](LICENSE) file for details.
@@ -130,6 +164,8 @@ This project is licensed under the MIT License. See [LICENSE](LICENSE) file for 
 ## Project Status
 
 This project is in Production/Stable ✔
+
+---
 
 ## Contribution 💗
 
