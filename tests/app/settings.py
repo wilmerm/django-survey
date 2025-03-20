@@ -1,3 +1,8 @@
+from pathlib import Path
+
+
+BASE_DIR = Path(__file__).resolve().parent
+
 DEBUG = True
 SECRET_KEY = "Thanks for using django-survey"
 ALLOWED_HOSTS = ['*']
@@ -19,7 +24,6 @@ INSTALLED_APPS = (
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "colorfield",
     "tests",
 
     # 1. `python -m build`
@@ -41,6 +45,7 @@ STATIC_URL = "/static/"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
+        'DIRS': [BASE_DIR / 'templates'],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [

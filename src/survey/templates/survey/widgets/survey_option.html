@@ -1,0 +1,33 @@
+{% with option.vote_percentage|floatformat:"0" as vote_percentage %}
+<div class="{{ survey.options_cssclass }}">
+  {% if not user_choice %}
+    <button type="submit" name="survey_option_id" value="{{ option.pk }}" class="card btn btn-light w-100 h-100 text-center mb-3 shadow-sm" style="border-color: {{ option.color }}90; border-bottom-width: 12px;">
+  {% else %}
+    <div class="card btn w-100 h-100 text-center mb-3 shadow-sm" style="border-width: 2px; border-bottom-width: 12px;{% if option == user_choice.option %}border-color: {{ option.color }}aa;{% else %}border-color: {{ option.color }}30;{% endif %}">
+  {% endif %}
+
+    {% if show_image and option.image %}
+      <img src="{{ option.image.url }}" alt="{{ option }}" class="card-img-top w-100" loading="lazy">
+    {% endif %}
+
+    <div class="card-body w-100">
+      <h3 class="h5 card-title w-100">{{ option }}</h3>
+      <p class="mb-0">{{ option.description }}</p>
+    </div>
+
+    <div class="card-footer w-100">
+      <div class="fw-bold lead">{{ option.vote_count }}</div>
+      <div class="fw-bold lead">{{ vote_percentage }}%</div>
+    </div>
+
+  {% if not user_choice %}
+    </button>
+  {% else %}
+    </div>
+  {% endif %}
+
+  <div class="progress" role="progressbar" aria-label="{{ option }} {{ _('percentage') }}" aria-valuenow="{{ vote_percentage }}" aria-valuemin="0" aria-valuemax="100">
+    <div class="progress-bar" style="width: {{ vote_percentage }}%; background-color: {{ option.color }}90"></div>
+  </div>
+</div>
+{% endwith %}

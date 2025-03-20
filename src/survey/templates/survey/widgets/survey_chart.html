@@ -1,0 +1,31 @@
+<div class="card card-body">
+  <canvas id="survey-chart-{{ survey.pk }}" width="400" height="100"></canvas>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  (function() {
+    const ctx = document.getElementById('survey-chart-{{ survey.pk }}').getContext('2d');
+    const surveyData = {{ survey_json|safe }};
+
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: surveyData.options.map(e => e.title),
+        datasets: [{
+          label: surveyData.title,
+          data: surveyData.options.map(e => e.vote_count),
+          backgroundColor: surveyData.options.map(e => e.color + '80'),
+          borderColor: surveyData.options.map(e => e.color),
+          borderWidth: 1
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        elements: { bar: { borderWidth: 2 } },
+        responsive: true,
+        plugins: { legend: { display: false } }
+      }
+    });
+  })();
+</script>
