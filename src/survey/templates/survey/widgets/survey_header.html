@@ -3,12 +3,31 @@
   {% if show_title %}<h1 class="survey-title">{{ survey }}</h1>{% endif %}
   {% if show_description %}<p class="survey-description">{{ survey.description }}</p>{% endif %}
 
+  <!-- Authentication requirement notice -->
+  {% if not survey.requires_authentication %}
+    <div class="alert alert-info small">
+      <i class="bi bi-info-circle me-1"></i>
+      {% trans "This survey allows anonymous voting. No login required." %}
+    </div>
+  {% elif not user.is_authenticated %}
+    <div class="alert alert-warning small">
+      <i class="bi bi-lock me-1"></i>
+      {% trans "You need to login to vote on this survey." %}
+    </div>
+  {% endif %}
+
   {% if user_choice %}
     <p class="text-muted small">
       <i class="bi bi-check-circle-fill me-1" style="color: {{ user_choice.option.color }}"></i>
-      {% blocktrans with option=user_choice.option date=user_choice.create_date %}
-        You have voted for {{ option }} on date {{ date }}
-      {% endblocktrans %}
+      {% if user_choice.user %}
+        {% blocktrans with option=user_choice.option date=user_choice.create_date %}
+          You have voted for {{ option }} on date {{ date }}
+        {% endblocktrans %}
+      {% else %}
+        {% blocktrans with option=user_choice.option date=user_choice.create_date %}
+          You have already voted for {{ option }} on date {{ date }}
+        {% endblocktrans %}
+      {% endif %}
     </p>
   {% endif %}
 </div>
