@@ -66,6 +66,10 @@ class Survey(BaseModel):
         null=True,
         blank=True,
     )
+    requires_authentication = models.BooleanField(
+        default=True,
+        help_text=_l("Whether users need to be authenticated to vote on this survey."),
+    )
     options_cssclass = models.CharField(
         max_length=500,
         blank=True,
@@ -81,6 +85,26 @@ class Survey(BaseModel):
 
     def has_user_voted(self, user):
         return SurveyChoice.objects.filter(option__survey=self, user=user).exists()
+
+    def has_session_voted(self, session_key):
+        """Check if a session has already voted on this survey (for anonymous users)."""
+        return SurveyChoice.objects.filter(
+            option__survey=self,
+            session_key=session_key,
+            user__isnull=True
+        ).exists()
+
+    def get_user_choice(self, user=None, session_key=None):
+        """Get the choice made by a user or session."""
+        if user:
+            return SurveyChoice.objects.filter(option__survey=self, user=user).first()
+        elif session_key:
+            return SurveyChoice.objects.filter(
+                option__survey=self,
+                session_key=session_key,
+                user__isnull=True
+            ).first()
+        return None
 
 
 class SurveyOption(BaseModel):
@@ -139,24 +163,52 @@ class SurveyChoice(BaseModel):
         User,
         related_name='survey_choices',
         on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+    )
+    # For anonymous votes, store session key to prevent duplicates
+    session_key = models.CharField(
+        max_length=40,
+        null=True,
+        blank=True,
     )
 
     def __str__(self):
-        return f"{self.user} | {self.option}"
+        if self.user:
+            return f"{self.user} | {self.option}"
+        else:
+            return f"Anonymous | {self.option}"
 
     def save(self, *args, **kwargs):
         self.validate_survey_is_active()
-        self.validate_unique_user_survey_choice()
+        self.validate_unique_choice()
         super().save(*args, **kwargs)
 
     def clean(self):
         self.validate_survey_is_active()
-        self.validate_unique_user_survey_choice()
+        self.validate_unique_choice()
 
     def validate_survey_is_active(self):
         if not self.option.survey.is_active:
             raise ValidationError(_("The survey is no longer active."))
 
-    def validate_unique_user_survey_choice(self):
-        if self.option.survey.has_user_voted(self.user):
-            raise ValidationError(_("You have already voted."))
+    def validate_unique_choice(self):
+        """Validate that the user/session hasn't already voted on this survey."""
+        survey = self.option.survey
+        
+        # For authenticated users
+        if self.user:
+            if survey.has_user_voted(self.user):
+                raise ValidationError(_("You have already voted."))
+        # For anonymous users, check session key
+        elif self.session_key:
+            existing_choice = SurveyChoice.objects.filter(
+                option__survey=survey,
+                session_key=self.session_key,
+                user__isnull=True
+            ).exists()
+            if existing_choice:
+                raise ValidationError(_("You have already voted."))
+        else:
+            # Either user or session_key should be provided
+            raise ValidationError(_("User or session information is required."))

@@ -1,7 +1,16 @@
 {% with option.vote_percentage|floatformat:"0" as vote_percentage %}
 <div class="{{ survey.options_cssclass }}">
+  {% comment %}
+    Show vote button only if:
+    1. User hasn't voted yet, AND
+    2. Either survey doesn't require authentication OR user is authenticated
+  {% endcomment %}
   {% if not user_choice %}
-    <button type="submit" name="survey_option_id" value="{{ option.pk }}" class="card btn btn-light w-100 h-100 text-center mb-3 shadow-sm" style="border-color: {{ option.color }}90; border-bottom-width: 12px;">
+    {% if not survey.requires_authentication or user.is_authenticated %}
+      <button type="submit" name="survey_option_id" value="{{ option.pk }}" class="card btn btn-light w-100 h-100 text-center mb-3 shadow-sm" style="border-color: {{ option.color }}90; border-bottom-width: 12px;">
+    {% else %}
+      <div class="card btn w-100 h-100 text-center mb-3 shadow-sm" style="border-width: 2px; border-bottom-width: 12px; border-color: {{ option.color }}30;">
+    {% endif %}
   {% else %}
     <div class="card btn w-100 h-100 text-center mb-3 shadow-sm" style="border-width: 2px; border-bottom-width: 12px;{% if option == user_choice.option %}border-color: {{ option.color }}aa;{% else %}border-color: {{ option.color }}30;{% endif %}">
   {% endif %}
@@ -21,7 +30,11 @@
     </div>
 
   {% if not user_choice %}
-    </button>
+    {% if not survey.requires_authentication or user.is_authenticated %}
+      </button>
+    {% else %}
+      </div>
+    {% endif %}
   {% else %}
     </div>
   {% endif %}

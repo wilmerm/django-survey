@@ -5,10 +5,19 @@
     {% include "survey/widgets/survey_header.html" %}
   </div>
 
+  {% comment %}
+    Show voting form only if:
+    1. User hasn't voted yet, AND
+    2. Either survey doesn't require authentication OR user is authenticated
+  {% endcomment %}
   {% if not user_choice %}
-    <form class="{{ row_class }}" method="post" action="{% url 'survey:vote' %}">
-      {% csrf_token %}
-      <input type="hidden" name="success_url" value="{% firstof success_url request.path %}">
+    {% if not survey.requires_authentication or user.is_authenticated %}
+      <form class="{{ row_class }}" method="post" action="{% url 'survey:vote' %}">
+        {% csrf_token %}
+        <input type="hidden" name="success_url" value="{% firstof success_url request.path %}">
+    {% else %}
+      <div class="{{ row_class }}">
+    {% endif %}
   {% else %}
     <div class="{{ row_class }}">
   {% endif %}
@@ -18,7 +27,11 @@
     {% endfor %}
 
   {% if not user_choice %}
-    </form>
+    {% if not survey.requires_authentication or user.is_authenticated %}
+      </form>
+    {% else %}
+      </div>
+    {% endif %}
   {% else %}
     </div>
   {% endif %}

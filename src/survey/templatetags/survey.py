@@ -47,9 +47,19 @@ def survey_detail(
         'row_class': row_class,
     })
 
+    # Check for user choice (authenticated or anonymous)
+    user_choice = None
+    
     if request.user.is_authenticated:
+        user_choice = survey.get_user_choice(user=request.user)
         user_choices = request.user.survey_choices.all().select_related('option')
-        context['user_choice'] = user_choices.filter(option__survey=survey).first()
         context['user_choices'] = user_choices
+    elif not survey.requires_authentication and hasattr(request, 'session'):
+        # For anonymous users on surveys that don't require authentication
+        session_key = request.session.session_key
+        if session_key:
+            user_choice = survey.get_user_choice(session_key=session_key)
+    
+    context['user_choice'] = user_choice
 
     return context
